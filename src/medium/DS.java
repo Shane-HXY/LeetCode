@@ -1,6 +1,6 @@
 package medium;
 
-import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by huangxiangyu on 2016/12/8.
@@ -23,24 +23,69 @@ s = "3[a2[c]]", return "accaccacc".
 s = "2[abc]3[cd]ef", return "abcabccdcdcdef".
 */
 public class DS {   //  394. Decode String
+    public Stack<Integer> stack = new Stack<>();
+    public StringBuffer mainBuffer = new StringBuffer();
+    public Stack<Character> stackChar = new Stack<>();
+
     public String decodeString(String s) {
-        StringBuffer stringBuffer = new StringBuffer();
-        StringBuffer intApp = new StringBuffer();
-        char[] chars = s.toCharArray();
+        int rptTm = 1;
+        mainBuffer.append(subString(s, rptTm));
+        return mainBuffer.toString();
+    }
+    public String subString(String s,int rptTime) {
+        char[] arr = s.toCharArray();
+        StringBuffer sb = new StringBuffer();
+        int i = 0;
         int cur = 0;
-        while (cur < chars.length) {
-            if (chars[cur] != '[' && chars[cur] != ']' && (chars[cur] < '0' || chars[cur] > '9')) {
-                stringBuffer.append(chars[cur]);
-            } else if (chars[cur] >= '0' && chars[cur] <= '9') {
-                intApp.append(chars[cur]);
+        while (i < arr.length) {
+            boolean ifin = false;
+            if (i < arr.length && arr[i] != '[' && arr[i] != ']' && (arr[i] < '0' || arr[i] > '9') && stackChar.isEmpty()) {
+                sb.append(arr[i]);
+                i++;
+                ifin = true;
+            }
+            if (i < arr.length && arr[i] > '0' && arr[i] <= '9' && stackChar.isEmpty()) {
+                int numBuf = 0;
+                while (arr[i] >= '0' && arr[i] <= '9') {
+                    int numBufi;
+                    numBufi = Integer.parseInt(String.valueOf(arr[i]));
+                    numBuf = (numBuf + numBufi) * 10;
+                    i++;
+                }
+                numBuf = numBuf / 10;
+                stack.push(numBuf);
+                ifin = true;
+            }
+            if (i < arr.length && arr[i] == '[') {
+                if (stackChar.isEmpty()) {
+                    cur = i;
+                }
+                stackChar.push('[');
+                i++;
+                ifin = true;
+            }
+            if (i < arr.length && arr[i] == ']') {
+                stackChar.pop();
+                if (stackChar.isEmpty()) {
+                    sb.append(subString(s.substring(cur + 1, i), stack.pop()));
+                }
+                i++;
+                ifin = true;
+            }
+            if (!ifin) {
+                i++;
             }
         }
+        StringBuffer res = new StringBuffer();
+        for (int j = 0; j < rptTime; j++) {
+            res.append(sb.toString());
+        }
+        return res.toString();
     }
-    public String recursionDecode(String s, int num) {
-        // recursive method to decode
-        if ()
-    }
-    public int getNum(String s) {
-        // get repeatTime of a String
+    public static void main(String[] args) {
+        DS ds = new DS();
+        String a = "ab3[a3[b]]";
+        String b = "3[a2[c]]";
+        System.out.println(ds.decodeString(b));
     }
 }
